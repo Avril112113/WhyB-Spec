@@ -1,6 +1,6 @@
 # Specification
-Version: 0.1 pre  
-A `YOLOL value` in JSON is either a number or a string, send only other data is not supported by this spec  
+Version: 0.0.1-pre
+A `YOLOL value` in JSON is either a number or a string, sending any other data is not supported by this spec  
 
 Table Of Contents:  
 - [Specification](#specification)
@@ -8,7 +8,7 @@ Table Of Contents:
 - [Mandates](#mandates)
 - [JsonRPC Over TCP](#jsonrpc-over-tcp)
 - [Error Codes](#error-codes)
-- [Sate serialization](#sate-serialization)
+- [State serialization](#state-serialization)
 - [Subscriptions](#subscriptions)
 - [Subscribables](#subscribables)
 	- [**`device_created`**](#device_created)
@@ -24,8 +24,8 @@ Table Of Contents:
 
 # Info on YololShipSystemSpec
 WhyB spec uses [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec), though that spec uses yaml, it must be used as JSON for this spec.  
-When serializing using that spec, a tag is used to specify a device type eg `!button` replace that with a field in the object named `type` eg `{"type": "button"}`.  
-It is recommended that if you save the state to a file, you should use [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) and save as a yaml file, though this is **not** mandated.  
+When serializing using that spec, a tag is used to specify a device type eg `!button` replace that with a field in the object named `type` eg `{"type": "button"}`.
+To save the state file you MAY use [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) and save as a yaml file.  
 
 # Mandates
 This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP).  
@@ -34,7 +34,7 @@ Device types use snake case, for examples; `button`, `lamp` and `range_finder`, 
 
 # JsonRPC Over TCP
 Following how HTTP uses headers only one header is valid `Content-Length` and should always be used  
-Incoming messages should always be UTF-8  
+Incoming messages MUST be UTF-8  
 An example of a message (**Note**: use of tabs, not spaces)  
 ```json
 Content-Length: 45\r\n
@@ -53,13 +53,13 @@ The use of batched JsonRPC is unsupported
 | -22800 | Invalid Subscribe Event | The passed event to be subscribed is invalid
 | -22603 | Internal Backend Error  | The backend had an unexpected error
 
-# Sate serialization
+# State serialization
 When a request is sent to the backend to load state, it should still fire subscribed events
 
 **Examples:**
 - `<STATE>` is the json version of the save state based on [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
 ```json
-Frontend -> Backend
+// Frontend -> Backend
 Request to load state:
 {
 	"jsonrpc": "2.0",
@@ -85,7 +85,7 @@ Error Response: (Normal JsonRPC error)
 }
 ```
 ```json
-Frontend -> Backend
+// Frontend -> Backend
 Request to save state
 {
 	"jsonrpc": "2.0",
@@ -122,9 +122,9 @@ Subscribe for updates:
 }
 ```
 
-# Subscribables
-Subscribables are used to get information updates from the backend without the need to ask for them, see [Subscriptions](#Subscriptions)  
-The following are available subscribables  
+# Subscriptions
+Subscriptions are used to get information updates from the backend without the need to ask for them, see [Subscriptions](#Subscriptions)  
+The following are available Subscriptions.  
 
 ## **`device_created`**
 **Event Source:** Global  
@@ -175,7 +175,7 @@ This event is fired when a networks field value has changed
 
 ## Full Examples  <!-- omit in toc -->
 ```json
-Backend -> Frontend
+// Backend -> Frontend
 On device field name changed:
 {
 	"jsonrpc": "2.0",
@@ -187,7 +187,7 @@ On device field name changed:
 	}
 }
 
-Backend -> Frontend
+// Backend -> Frontend
 On network field value changed:
 {
 	"jsonrpc": "2.0",
@@ -204,7 +204,7 @@ On network field value changed:
 `lines_second` can be `-1`, this indicates run as fast as possible; otherwise if it's positive, run this many lines per second  
 **Full Example:**
 ```json
-Frontend -> Backend
+// Frontend -> Backend
 Set execution speed:
 {
 	"jsonrpc": "2.0",
