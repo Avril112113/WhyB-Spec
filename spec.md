@@ -7,7 +7,7 @@ Table Of Contents:
 - [Specification](#specification)
 - [Info on YololShipSystemSpec](#info-on-yololshipsystemspec)
 - [Mandates](#mandates)
-- [JsonRPC Over TCP](#jsonrpc-over-tcp)
+- [JsonRPC Over TCP Implementation](#jsonrpc-over-tcp-implementation)
 - [Error Codes](#error-codes)
 - [State serialization](#state-serialization)
 - [Subscriptions](#subscriptions)
@@ -30,13 +30,13 @@ When serializing using that spec, a tag is used to specify a device type eg `!bu
 To save the state file you MAY use [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) and save as a yaml file.  
 
 # Mandates
-This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP).  
+This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP-Implementation) for implementation details.  
 Version of [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) to be used is: `1.2.0`  
-Device types use snake case, for examples; `button`, `lamp` and `range_finder`, this style is the same as used in [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
+Device types MUST use snake case, for examples; `button`, `lamp` and `range_finder`, this style is the same as used in [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
 
-# JsonRPC Over TCP
-Following how HTTP uses headers only one header is valid `Content-Length` and should always be used  
-Incoming messages MUST be UTF-8  
+# JsonRPC Over TCP Implementation
+Following how HTTP uses headers only one header is valid `Content-Length` and MUST be used  
+All messages MUST be in UTF-8  
 An example of a message (**Note**: use of tabs, not spaces)  
 ```json
 Content-Length: 45\r\n
@@ -56,7 +56,7 @@ The use of batched JsonRPC is unsupported
 | -22603 | Internal Backend Error  | The backend had an unexpected error
 
 # State serialization
-When a request is sent to the backend to load state, it should still fire subscribed events
+When a request is sent to the backend to load state, it MUST still fire subscribed events
 
 **Examples:**
 - `<STATE>` is the json version of the save state based on [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
@@ -217,7 +217,7 @@ This event is fired when a networks field value has changed
 # State modification requests
 ## **`create_network`**
 Frontend -> Backend  
-When requested, this should create a new empty network and respond with the new networks GUID  
+When requested, this will create a new empty network and respond with the new networks GUID  
 
 **Parameters:**  
 none  
@@ -241,8 +241,8 @@ none
 
 ## **`create_device`**
 Frontend -> Backend  
-When requested, this should create a new device with default fields and respond with the new devices GUID  
-Device types should follow snake_case naming, for a few examples see the [Mandates](#Mandates)
+When requested, this will create a new device with default fields and respond with the new devices GUID  
+Device type naming see [Mandates](#Mandates)  
 
 **Parameters:**  
 `type`: The type of device to create  
@@ -269,8 +269,8 @@ Device types should follow snake_case naming, for a few examples see the [Mandat
 
 ## **`set_network_value`**
 Frontend -> Backend  
-When requested, this should set the given field value in the network.  
-If `source` is not omitted then the change should originate from that device, though the use of this field is optional.  
+When requested, this will set the given field value in the network.  
+If `source` is not omitted then the change must originate from that device, though the use of this field is optional.  
 
 **Parameters:**  
 `network`: The GUID of the target network  
