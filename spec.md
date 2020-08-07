@@ -1,6 +1,26 @@
 # Specification
-### Version: 0.1 pre
-A `YOLOL value` in JSON is either a number or a string, send only other data is not supported by this spec
+Version: 0.1 pre  
+A `YOLOL value` in JSON is either a number or a string, send only other data is not supported by this spec  
+
+Table Of Contents:  
+- [Specification](#specification)
+- [Info on YololShipSystemSpec](#info-on-yololshipsystemspec)
+- [Mandates](#mandates)
+- [JsonRPC Over TCP](#jsonrpc-over-tcp)
+- [Error Codes](#error-codes)
+- [Sate serialization](#sate-serialization)
+- [Subscriptions](#subscriptions)
+- [Subscribables](#subscribables)
+	- [**`device_created`**](#device_created)
+	- [**`device_field_name_changed`**](#device_field_name_changed)
+	- [**`network_created`**](#network_created)
+	- [**`network_value_changed`**](#network_value_changed)
+- [Simulation speed control](#simulation-speed-control)
+- [State modification requests](#state-modification-requests)
+	- [**`create_network`**](#create_network)
+	- [**`create_device`**](#create_device)
+	- [**`set_network_value`**](#set_network_value)
+	- [**`set_device_field_name`**](#set_device_field_name)
 
 # Info on YololShipSystemSpec
 WhyB spec uses [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec), though that spec uses yaml, it must be used as JSON for this spec.  
@@ -153,7 +173,7 @@ This event is fired when a networks field value has changed
 `field_name`: The name of the field that changed  
 `field_value`: The new value of the field (YOLOL value)  
 
-## Full Examples:  
+## Full Examples  <!-- omit in toc -->
 ```json
 Backend -> Frontend
 On device field name changed:
