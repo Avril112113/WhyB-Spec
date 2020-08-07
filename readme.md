@@ -13,7 +13,6 @@ TODO
 See [spec.md](spec.md) for the full specification  
 
 # TODO List
-- [ ] Get yolol code going back and forth
-- [ ] Gettable chip info like internal variables and current line
-- [ ] A way for the frontend to know if the backend was restarted or just loss of connection
+- [ ] Support yolol chips and code
+- [ ] A way for the frontend to know if the backend was restarted or just lost connection
 - [ ] Decide if the backend must support multiple connections or should just be advised
