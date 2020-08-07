@@ -11,3 +11,9 @@ Another benefit of this spec is that multiple users can work on the same backend
 # The spec overview
 TODO  
 See [spec.md](spec.md) for the full specification  
+
+# TODO List
+- [ ] Get yolol code going back and forth
+- [ ] Gettable chip info like internal variables and current line
+- [ ] A way for the frontend to know if the backend was restarted or just loss of connection
+- [ ] Decide if the backend must support multiple connections or should just be advised
