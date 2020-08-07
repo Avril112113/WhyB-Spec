@@ -1,6 +1,7 @@
 # Specification
 Version: 0.0.1-pre
 A `YOLOL value` in JSON is either a number or a string, sending any other data is not supported by this spec  
+This spec uses `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, `MAY` and `MAY NOT` as described in https://www.ietf.org/rfc/rfc2119.txt
 
 Table Of Contents:  
 - [Specification](#specification)
@@ -10,7 +11,8 @@ Table Of Contents:
 - [Error Codes](#error-codes)
 - [State serialization](#state-serialization)
 - [Subscriptions](#subscriptions)
-- [Subscribables](#subscribables)
+	- [Subscribe Request](#subscribe-request)
+	- [List of available subscriptions](#list-of-available-subscriptions)
 	- [**`device_created`**](#device_created)
 	- [**`device_field_name_changed`**](#device_field_name_changed)
 	- [**`network_created`**](#network_created)
@@ -60,7 +62,7 @@ When a request is sent to the backend to load state, it should still fire subscr
 - `<STATE>` is the json version of the save state based on [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
 ```json
 // Frontend -> Backend
-Request to load state:
+// Request to load state:
 {
 	"jsonrpc": "2.0",
 	"method": "load_state",
@@ -70,14 +72,14 @@ Request to load state:
 	"id": 1
 }
 
-Success Response:
+// Success Response:
 {
 	"jsonrpc": "2.0",
 	"result": true,
 	"id": 1
 }
 
-Error Response: (Normal JsonRPC error)
+// Error Response: (Normal JsonRPC error)
 {
 	"jsonrpc": "2.0",
 	"error": {"code": -22700, "message": "Invalid State Format"},
@@ -86,14 +88,14 @@ Error Response: (Normal JsonRPC error)
 ```
 ```json
 // Frontend -> Backend
-Request to save state
+// Request to save state
 {
 	"jsonrpc": "2.0",
 	"method": "save_state",
 	"id": 1
 }
 
-Response:
+// Response:
 {
 	"jsonrpc": "2.0",
 	"result": <STATE>,
@@ -102,30 +104,27 @@ Response:
 ```
 
 # Subscriptions
-Subscriptions are a way to get updates on changed information without having to request for them  
+Subscriptions are used to get information updates from the backend without the need to ask for them  
 
-**Examples:**
+## Subscribe Request
 - `<DEVICE_GUID>` is the devices GUID
 - `<SUBSCRIBABLE>` is one of the [subscribables](#subscribables)
 - `<NETWORK_GUID>` is the devices GUID  
-- `<SUBSCRIBABLE PARAMETERS>` is the subscribe parameters specific to that [subscribable](#subscribables)
+- `<SUBSCRIBABLE_PARAMETERS>` is the subscribe parameters specific to that [subscribable](#subscribables)
 ```json
-Frontend -> Backend
-Subscribe for updates:
+// Frontend -> Backend
+// Subscribe for updates:
 {
 	"jsonrpc": "2.0",
 	"method": "subscribe",
 	"params": {
 		"type": "<SUBSCRIBABLE>",
-		<SUBSCRIBABLE PARAMETERS>
+		<SUBSCRIBABLE_PARAMETERS>
 	}
 }
 ```
 
-# Subscriptions
-Subscriptions are used to get information updates from the backend without the need to ask for them, see [Subscriptions](#Subscriptions)  
-The following are available Subscriptions.  
-
+## List of available subscriptions
 ## **`device_created`**
 **Event Source:** Global  
 This event is fired when a new device is created  
@@ -173,10 +172,10 @@ This event is fired when a networks field value has changed
 `field_name`: The name of the field that changed  
 `field_value`: The new value of the field (YOLOL value)  
 
-## Full Examples  <!-- omit in toc -->
+## Event Examples  <!-- omit in toc -->
 ```json
 // Backend -> Frontend
-On device field name changed:
+// On device field name changed:
 {
 	"jsonrpc": "2.0",
 	"method": "device_field_name_changed",
@@ -188,7 +187,7 @@ On device field name changed:
 }
 
 // Backend -> Frontend
-On network field value changed:
+// On network field value changed:
 {
 	"jsonrpc": "2.0",
 	"method": "network_value_changed",
@@ -205,7 +204,7 @@ On network field value changed:
 **Full Example:**
 ```json
 // Frontend -> Backend
-Set execution speed:
+// Set execution speed:
 {
 	"jsonrpc": "2.0",
 	"method": "set_execution_speed",
@@ -225,14 +224,14 @@ none
 
 **Full Example:**  
 ```json
-Request:
+// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "create_network",
 	"id": 1
 }
 
-Response:
+// Response:
 {
 	"jsonrpc": "2.0",
 	"result": "9af5497a-bd54-4899-ba29-d97b545225a7",
@@ -250,7 +249,7 @@ Device types should follow snake_case naming, for a few examples see the [Mandat
 
 **Full Example:**  
 ```json
-Request:
+// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "create_device",
@@ -260,7 +259,7 @@ Request:
 	"id": 1
 }
 
-Response:
+// Response:
 {
 	"jsonrpc": "2.0",
 	"result": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
@@ -281,7 +280,7 @@ If `source` is not omitted then the change should originate from that device, th
 
 **Full Example:**  
 ```json
-Request:
+// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "set_network_value",
@@ -293,7 +292,7 @@ Request:
 	"id": 1
 }
 
-Success Response:
+// Success Response:
 {
 	"jsonrpc": "2.0",
 	"result": true,
@@ -311,7 +310,7 @@ When requested, this should set the field name on the device.
 
 **Full Example:**  
 ```json
-Request:
+// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "set_device_field_name",
@@ -323,7 +322,7 @@ Request:
 	"id": 1
 }
 
-Success Response:
+// Success Response:
 {
 	"jsonrpc": "2.0",
 	"result": true,
