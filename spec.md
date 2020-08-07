@@ -257,7 +257,7 @@ If `source` is not omitted then the change should originate from that device, th
 `network`: The GUID of the target network  
 `field_name`: The field name to change the value of  
 `field_value`: The new value for the field  
-`source`: The source of the change (can be omitted)  
+`source`: The source device GUID of the change (can be omitted)  
 
 **Full Example:**  
 ```json
