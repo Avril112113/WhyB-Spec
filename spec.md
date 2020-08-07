@@ -49,11 +49,13 @@ Content-Length: 45\r\n
 The use of batched JsonRPC is unsupported  
 
 # Error Codes
-|  Code  |  Message                |  Meaning
-|:------:|:----------------------- |:---------
-| -22700 | Invalid State Format    | The state given to `load_state` was formatted incorrectly
-| -22800 | Invalid Subscribe Event | The passed event to be subscribed is invalid
-| -22603 | Internal Backend Error  | The backend had an unexpected error
+These codes are similar to HTTP status codes  
+JsonRPC codes MUST always be used before considering a HTTP code  
+| Code |  Message                |  Meaning
+|:----:|:----------------------- |:---------
+| 500  | Internal Backend Error  | The backend had an unexpected error
+| 551  | Invalid Subscribe Event | The passed event to be subscribed is invalid
+| 552  | Invalid State Format    | The state given to `load_state` or from `save_state` was formatted incorrectly
 
 # State serialization
 When a request is sent to the backend to load state, it MUST still fire subscribed events
