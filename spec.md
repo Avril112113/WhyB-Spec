@@ -31,7 +31,7 @@ To save the state file you MAY use [YololShipSystemSpec](https://github.com/mart
 
 # Mandates
 This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP-Implementation) for implementation details.  
-Version of [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) to be used is: `1.2.0`  
+Version of [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) to be used is: `1.0.0`  
 Device types MUST use snake case, for examples; `button`, `lamp` and `range_finder`, this style is the same as used in [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
 
 # JsonRPC Over TCP Implementation
