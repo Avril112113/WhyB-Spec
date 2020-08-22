@@ -15,5 +15,4 @@ See [spec.md](spec.md) for the full specification
 
 # TODO List
 - [ ] Support yolol chips and code
-- [ ] A way for the frontend to know if the backend was restarted or just lost connection
 - [ ] Decide if the backend must support multiple connections or should just be advised
