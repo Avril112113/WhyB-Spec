@@ -1,15 +1,13 @@
 # Specification
 Version: 0.0.1-pre
-A `YOLOL value` in JSON is either a number or a string, sending any other data is not supported by this spec  
 This spec uses `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, `MAY` and `MAY NOT` as described in https://www.ietf.org/rfc/rfc2119.txt
+A `YololValue` in JSON is either a number or a string, sending any other data is not supported by this spec  
 
 Table Of Contents:  
 - [Specification](#specification)
-- [Info on YololShipSystemSpec](#info-on-yololshipsystemspec)
 - [Mandates](#mandates)
 - [JsonRPC Over TCP Implementation](#jsonrpc-over-tcp-implementation)
 - [Error Codes](#error-codes)
-- [State serialization](#state-serialization)
 - [Subscriptions](#subscriptions)
 	- [Subscribe Request](#subscribe-request)
 	- [List of available subscriptions](#list-of-available-subscriptions)
@@ -24,15 +22,12 @@ Table Of Contents:
 	- [**`set_network_value`**](#set_network_value)
 	- [**`set_device_field_name`**](#set_device_field_name)
 
-# Info on YololShipSystemSpec
-WhyB spec uses [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec), though that spec uses yaml, it must be used as JSON for this spec.  
-When serializing using that spec, a tag is used to specify a device type eg `!button` replace that with a field in the object named `type` eg `{"type": "button"}`.
-To save the state file you MAY use [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) and save as a yaml file.  
-
 # Mandates
 This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP-Implementation) for implementation details.  
-Version of [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec) to be used is: `1.0.0`  
-Device types MUST use snake case, for examples; `button`, `lamp` and `range_finder`, this style is the same as used in [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
+Device types MUST use snake case, examples; `button`, `lamp` and `range_finder`  
+Field ID's MUST use PascalCase, examples; `ButtonState`, `LampOn`  
+Field names MUST only contain alphanumerical characters and underscores, examples; `my_lamp_state`, `buttonstate`, `door1_state`  
+The backend MUST start with a blank state, no networks or devices.  
 
 # JsonRPC Over TCP Implementation
 Following how HTTP uses headers only one header is valid `Content-Length` and MUST be used  
@@ -49,70 +44,20 @@ Content-Length: 45\r\n
 The use of batched JsonRPC is unsupported  
 
 # Error Codes
-These codes are similar to HTTP status codes  
-JsonRPC codes MUST always be used before considering a HTTP code  
+These codes are based off HTTP status codes  
+*JsonRPC codes MUST always be used before considering a HTTP code*  
 | Code |  Message                |  Meaning
 |:----:|:----------------------- |:---------
 | 500  | Internal Backend Error  | The backend had an unexpected error
 | 551  | Invalid Subscribe Event | The passed event to be subscribed is invalid
 | 552  | Invalid State Format    | The state given to `load_state` or from `save_state` was formatted incorrectly
 
-# State serialization
-When a request is sent to the backend to load state, it MUST still fire subscribed events
-
-**Examples:**
-- `<STATE>` is the json version of the save state based on [YololShipSystemSpec](https://github.com/martindevans/YololShipSystemSpec)  
-```json
-// Frontend -> Backend
-// Request to load state:
-{
-	"jsonrpc": "2.0",
-	"method": "load_state",
-	"params": {
-		"state": <STATE>
-	},
-	"id": 1
-}
-
-// Success Response:
-{
-	"jsonrpc": "2.0",
-	"result": true,
-	"id": 1
-}
-
-// Error Response: (Normal JsonRPC error)
-{
-	"jsonrpc": "2.0",
-	"error": {"code": -22700, "message": "Invalid State Format"},
-	"id": 1
-}
-```
-```json
-// Frontend -> Backend
-// Request to save state
-{
-	"jsonrpc": "2.0",
-	"method": "save_state",
-	"id": 1
-}
-
-// Response:
-{
-	"jsonrpc": "2.0",
-	"result": <STATE>,
-	"id": 1
-}
-```
-
 # Subscriptions
 Subscriptions are used to get information updates from the backend without the need to ask for them  
 
 ## Subscribe Request
-- `<DEVICE_GUID>` is the devices GUID
-- `<SUBSCRIBABLE>` is one of the [subscribables](#subscribables)
-- `<NETWORK_GUID>` is the devices GUID  
-- `<SUBSCRIBABLE_PARAMETERS>` is the subscribe parameters specific to that [subscribable](#subscribables)
+- `<SUBSCRIBABLE>` is one of the subscribables listed below
+- `<SUBSCRIBABLE_PARAMETERS>` is the subscribe parameters specific to that subscribable
 ```json
 // Frontend -> Backend
 // Subscribe for updates:
@@ -128,51 +73,96 @@ Subscriptions are used to get information updates from the backend without the n
 
 ## List of available subscriptions
 ## **`device_created`**
-**Event Source:** Global  
 This event is fired when a new device is created  
 
-**Subscribe Parameters:**  
-None  
+**Subscribe Parameters:**
+```json
+{
+	"type": "device_created"
+}
+```
 
-**Event Parameters:**  
-`device`: The GUID of the device  
-`network`: The GUID of the network the device is in  
-`type`: The type of device  
+**Event Parameters:**
+```json
+{
+	// The GUID of the device
+	"device": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
+	// The GUID of the network the device is in
+	"network": "9af5497a-bd54-4899-ba29-d97b545225a7",
+	// The type of device
+	"device_type": "lamp"
+}
+```
 
 
 ## **`device_field_name_changed`**
-**Event Source:** Device  
-This event is fired when a devices field name has been changed
+This event is fired when a devices field name has been changed  
 
-**Subscribe Parameters:**  
-`device`: The GUID of the device  
+**Subscribe Parameters:**
+```json
+{
+	"type": "device_field_name_changed",
+	// The GUID of the device
+	"device": "a46cbab4-c27c-4d33-82b0-7c0a1c162356"
+}
+```
 
-**Event Parameters:**  
-`device`: The GUID of the device  
-`field_id`: The identity of the field (the default name)  
-`field_name`: The new name of the field  
+**Event Parameters:**
+```json
+{
+	// The GUID of the device
+	"device": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
+	// The changed field ID
+	"field_id": "LampOn",
+	// The new field name
+	"field_name": "my_lamp_state"
+}
+```
+
 
 ## **`network_created`**
-**Event Source:** Global  
 This event is fired when a new network is created  
 
-**Subscribe Parameters:**  
-None  
+**Subscribe Parameters:**
+```json
+{
+	"type": "network_created"
+}
+```
 
-**Event Parameters:**  
-`network`: The GUID of the network  
+**Event Parameters:**
+```json
+{
+	// The GUID of the network
+	"network": "9af5497a-bd54-4899-ba29-d97b545225a7"
+}
+```
+
 
 ## **`network_value_changed`**
-**Event Source:** Network  
-This event is fired when a networks field value has changed  
+This event is fired when a network's field value has changed  
 
-**Subscribe Parameters:**  
-`network`: The GUID of the network  
+**Subscribe Parameters:**
+```json
+{
+	"type": "network_created",
+	// The GUID of the network
+	"network": "9af5497a-bd54-4899-ba29-d97b545225a7"
+}
+```
 
-**Event Parameters:**  
-`network`: The GUID of the network  
-`field_name`: The name of the field that changed  
-`field_value`: The new value of the field (YOLOL value)  
+**Event Parameters:**
+```json
+{
+	// The GUID of the network
+	"network": "9af5497a-bd54-4899-ba29-d97b545225a7",
+	// The name of the field that changed
+	"field_name": "my_lamp_state",
+	// The new value of the field (YololValue)
+	"field_value": 1
+}
+```
+
 
 ## Event Examples  <!-- omit in toc -->
 ```json
@@ -183,8 +173,8 @@ This event is fired when a networks field value has changed
 	"method": "device_field_name_changed",
 	"params": {
 		"device": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
-		"field_id": "ButtonState",
-		"field_name": "MyLittleButtonState"
+		"field_id": "LampOn",
+		"field_name": "my_lamp_state"
 	}
 }
 
@@ -202,99 +192,111 @@ This event is fired when a networks field value has changed
 ```
 
 # Simulation speed control
-`lines_second` can be `-1`, this indicates run as fast as possible; otherwise if it's positive, run this many lines per second  
-**Full Example:**
+**Sent from frontend to backend**  
+Control the execution speed of YOLOL  
+
+**Request:**
 ```json
-// Frontend -> Backend
 // Set execution speed:
 {
 	"jsonrpc": "2.0",
 	"method": "set_execution_speed",
 	"params": {
-		"lines_second": 1
-	}
+		// -1 indicate run as fast as possible, 0 means pause, any other positive value means to run at x lines per second
+		"lines_second": 5
+	},
+	"id": 1
+}
+```
+
+**Response:**
+```json
+{
+	"jsonrpc": "2.0",
+	"result": true,
+	"id": 1
 }
 ```
 
 # State modification requests
 ## **`create_network`**
-Frontend -> Backend  
+**Sent from frontend to backend**  
 When requested, this will create a new empty network and respond with the new networks GUID  
 
-**Parameters:**  
-none  
-
-**Full Example:**  
+**Request:**
 ```json
-// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "create_network",
 	"id": 1
 }
+```
 
-// Response:
+**Response:**
+```json
 {
 	"jsonrpc": "2.0",
+	// The new network GUID
 	"result": "9af5497a-bd54-4899-ba29-d97b545225a7",
 	"id": 1
 }
 ```
 
 ## **`create_device`**
-Frontend -> Backend  
+**Sent from frontend to backend**
 When requested, this will create a new device with default fields and respond with the new devices GUID  
 Device type naming see [Mandates](#Mandates)  
 
-**Parameters:**  
-`type`: The type of device to create  
-
-**Full Example:**  
+**Request:**
 ```json
-// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "create_device",
 	"params": {
-		"type": "button"
+		// The type of device to create
+		"device_type": "button"
 	},
 	"id": 1
 }
+```
 
-// Response:
+**Response:**
+```json
 {
 	"jsonrpc": "2.0",
+	// The new device GUID
 	"result": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
 	"id": 1
 }
 ```
 
+
 ## **`set_network_value`**
-Frontend -> Backend  
+**Sent from frontend to backend**
 When requested, this will set the given field value in the network.  
 If `source` is not omitted then the change must originate from that device, though the use of this field is optional.  
 
-**Parameters:**  
-`network`: The GUID of the target network  
-`field_name`: The field name to change the value of  
-`field_value`: The new value for the field  
-`source`: The source device GUID of the change (can be omitted)  
-
-**Full Example:**  
+**Request:**
 ```json
-// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "set_network_value",
 	"params": {
+		// The GUID of the target network
 		"network": "9af5497a-bd54-4899-ba29-d97b545225a7",
-		"field_name": "MyLittleLampOn",
-		"field_value": 1
+		// The field name to change the value of
+		"field_name": "my_lamp_state",
+		// The new value for the field
+		"field_value": 1,
+		// The source device GUID of the change (can be omitted)
+		"source": "a46cbab4-c27c-4d33-82b0-7c0a1c162356"
 	},
 	"id": 1
 }
+```
 
-// Success Response:
+**Response:**
+```json
 {
 	"jsonrpc": "2.0",
 	"result": true,
@@ -303,28 +305,29 @@ If `source` is not omitted then the change must originate from that device, thou
 ```
 
 ## **`set_device_field_name`**
-Frontend -> Backend  
+**Sent from frontend to backend**
 When requested, this should set the field name on the device.  
+TODO: mandate what to do when the new name exists or does not exist in the network
 
-**Parameters:**  
-`field_id`: The field ID to change the name of  
-`field_name`: The name to change to  
-
-**Full Example:**  
+**Request:**
 ```json
-// Request:
 {
 	"jsonrpc": "2.0",
 	"method": "set_device_field_name",
 	"params": {
-		"network": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
+		// GUID of the device
+		"device": "a46cbab4-c27c-4d33-82b0-7c0a1c162356",
+		// The field ID to change the name of
 		"field_id": "LampOn",
-		"field_name": "MyLittleLampOn"
+		// The name to change to
+		"field_name": "my_lamp_state"
 	},
 	"id": 1
 }
+```
 
-// Success Response:
+**Response:**
+```json
 {
 	"jsonrpc": "2.0",
 	"result": true,
