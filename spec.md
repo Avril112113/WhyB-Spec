@@ -6,7 +6,7 @@ A `YololValue` in JSON is either a number or a string, sending any other data is
 Table Of Contents:  
 - [Specification](#specification)
 - [Mandates](#mandates)
-- [JsonRPC Over TCP Implementation](#jsonrpc-over-tcp-implementation)
+- [Protocol](#protocol)
 - [Error Codes](#error-codes)
 - [Subscriptions](#subscriptions)
 	- [Subscribe Request](#subscribe-request)
@@ -24,24 +24,14 @@ Table Of Contents:
 
 # Mandates
 This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP-Implementation) for implementation details.  
-Device types MUST use snake case, examples; `button`, `lamp` and `range_finder`  
-Field ID's MUST use PascalCase, examples; `ButtonState`, `LampOn`  
-Field names MUST only contain alphanumerical characters and underscores, examples; `my_lamp_state`, `buttonstate`, `door1_state`  
+Device types MUST use snake case, examples; `button`, `lamp` and `range_finder`.  
+Field ID's MUST use PascalCase, examples; `ButtonState`, `LampOn`.  
+Field names MUST only contain alphanumerical characters and underscores, examples; `my_lamp_state`, `buttonstate`, `door1_state`.  
 The backend MUST start with a blank state, no networks or devices.  
+The backend MUST support pausing (speed of `0`) and running at 5 lines per second.  
 
-# JsonRPC Over TCP Implementation
-Following how HTTP uses headers only one header is valid `Content-Length` and MUST be used  
-All messages MUST be in UTF-8  
-An example of a message (**Note**: use of tabs, not spaces)  
-```json
-Content-Length: 45\r\n
-\r\n
-{
-	"jsonrpc": "2.0",
-	"method": "METHOD"
-}
-```
-The use of batched JsonRPC is unsupported  
+# Protocol
+JsonRPC 2.0 over WebSockets
 
 # Error Codes
 These codes are based off HTTP status codes  
