@@ -6,7 +6,6 @@ A `YololValue` in JSON is either a number or a string, sending any other data is
 Table Of Contents:  
 - [Specification](#specification)
 - [Mandates](#mandates)
-- [Protocol](#protocol)
 - [Error Codes](#error-codes)
 - [Subscriptions](#subscriptions)
 	- [Subscribe Request](#subscribe-request)
@@ -23,15 +22,12 @@ Table Of Contents:
 	- [**`set_device_field_name`**](#set_device_field_name)
 
 # Mandates
-This spec mandates the use of JsonRPC over TCP, see [JsonRPC Over TCP](#JsonRPC-Over-TCP-Implementation) for implementation details.  
+This spec mandates the use of JsonRPC over WebSockets, see [Protocol](#Protocol) for implementation details.  
 Device types MUST use snake case, examples; `button`, `lamp` and `range_finder`.  
 Field ID's MUST use PascalCase, examples; `ButtonState`, `LampOn`.  
 Field names MUST only contain alphanumerical characters and underscores, examples; `my_lamp_state`, `buttonstate`, `door1_state`.  
 The backend MUST start with a blank state, no networks or devices.  
 The backend MUST support pausing (speed of `0`) and running at 5 lines per second.  
-
-# Protocol
-JsonRPC 2.0 over WebSockets
 
 # Error Codes
 These codes are based off HTTP status codes  
