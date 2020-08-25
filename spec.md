@@ -7,6 +7,7 @@ Table Of Contents:
 - [Specification](#specification)
 - [Mandates](#mandates)
 - [Error Codes](#error-codes)
+- [Chip execution ticking](#chip-execution-ticking)
 - [Subscriptions](#subscriptions)
 	- [Subscribe Request](#subscribe-request)
 	- [List of available subscriptions](#list-of-available-subscriptions)
@@ -14,12 +15,12 @@ Table Of Contents:
 	- [**`device_field_name_changed`**](#device_field_name_changed)
 	- [**`network_created`**](#network_created)
 	- [**`network_value_changed`**](#network_value_changed)
-- [Simulation speed control](#simulation-speed-control)
 - [State modification requests](#state-modification-requests)
 	- [**`create_network`**](#create_network)
 	- [**`create_device`**](#create_device)
 	- [**`set_network_value`**](#set_network_value)
 	- [**`set_device_field_name`**](#set_device_field_name)
+
 
 # Mandates
 This spec mandates the use of JsonRPC over WebSockets, see [Protocol](#Protocol) for implementation details.  
@@ -29,6 +30,7 @@ Field names MUST only contain alphanumerical characters and underscores, example
 The backend MUST start with a blank state, no networks or devices.  
 The backend MUST support pausing (speed of `0`) and running at 5 lines per second.  
 
+
 # Error Codes
 These codes are based off HTTP status codes  
 *JsonRPC codes MUST always be used before considering a HTTP code*  
@@ -36,7 +38,43 @@ These codes are based off HTTP status codes
 |:----:|:----------------------- |:---------
 | 500  | Internal Backend Error  | The backend had an unexpected error
 | 551  | Invalid Subscribe Event | The passed event to be subscribed is invalid
-| 552  | Invalid State Format    | The state given to `load_state` or from `save_state` was formatted incorrectly
+| 552  | Until expr unsupported  | The server does not support 'ticking until evaluates true' expression
+
+
+# Chip execution ticking
+**Sent from frontend to backend**  
+Control the execution of YOLOL  
+
+**Request:**
+```json
+// Set execution speed:
+{
+	"jsonrpc": "2.0",
+	"method": "tick_chip",
+	"params": {
+		// The GUID of the chip that is being ticked
+		"chip": "3f72b0a3-70d0-4815-b41d-123d191538db",
+
+		// Run this many ticks (or lines of yolol)
+		"count": 5,
+		// - OR -
+		// Run until this expression evaluates to true
+		// backends MAY support this but is recommended
+		"until": ":done != 0"
+	},
+	"id": 1
+}
+```
+
+**Response:**
+```json
+{
+	"jsonrpc": "2.0",
+	"result": true,
+	"id": 1
+}
+```
+
 
 # Subscriptions
 Subscriptions are used to get information updates from the backend without the need to ask for them  
@@ -177,32 +215,6 @@ This event is fired when a network's field value has changed
 }
 ```
 
-# Simulation speed control
-**Sent from frontend to backend**  
-Control the execution speed of YOLOL  
-
-**Request:**
-```json
-// Set execution speed:
-{
-	"jsonrpc": "2.0",
-	"method": "set_execution_speed",
-	"params": {
-		// -1 indicate run as fast as possible, 0 means pause, any other positive value means to run at x lines per second
-		"lines_second": 5
-	},
-	"id": 1
-}
-```
-
-**Response:**
-```json
-{
-	"jsonrpc": "2.0",
-	"result": true,
-	"id": 1
-}
-```
 
 # State modification requests
 ## **`create_network`**
