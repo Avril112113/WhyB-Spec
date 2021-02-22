@@ -1,0 +1,287 @@
+{
+	"version": "0.0.2",
+	"desc": "This spec uses MUST, MUST NOT, SHOULD, SHOULD NOT, MAY and MAY NOT as described in https://www.ietf.org/rfc/rfc2119.txt",
+	"mandates": [
+		"Communication using JsonRPC over WebSockets.",
+		"Device types MUST use snake case, examples are `button`, `lamp` and `range_finder`.",
+		"Field ID's MUST use PascalCase, examples are `ButtonState` and `LampOn`.",
+		"Field names MUST only contain alphanumerical characters and underscores, examples are `my_lamp_state`, `buttonstate` and `door1_state`.",
+		"Upon a new client, the backend MUST send the new client the current state though events."
+	],
+	"codes_desc": "JsonRPC codes are used https://www.jsonrpc.org/specification#error_object",
+	"codes": {
+		"-32000": "The backend had an unexpected error"
+	},
+
+	"types": {
+		"YololValue": {
+			"desc": "A yolol value, string starting and ending with double quotes for a yolol string otherwise a yolol number",
+			"json": "string",
+			"real": "string"
+		},
+		"Network": {
+			"desc": "A network GUID, sent as a string through JsonRPC",
+			"json": "string",
+			"real": "guid"
+		},
+		"Device": {
+			"desc": "A device GUID, sent as a string through JsonRPC",
+			"json": "string",
+			"real": "guid"
+		}
+	},
+
+	"requests": {
+		"extension_supported": {
+			"desc": "Gets weather the given extension is supported",
+			"params": {
+				"name": {
+					"type": "string",
+					"desc": "SnakeCase name of the extension"
+				}
+			},
+			"result": {
+				"type": "bool",
+				"desc": "Weather it's supported or not"
+			}
+		},
+		"set_simulation_speed": {
+			"desc": "Sets the global simulation speed  \nDefault simulation speed MUST be 0.2  \nThe backend MUST support pausing (sim speed of 0) and sim speed of 0.2 (5 lines a second).",
+			"params": {
+				"speed": {
+					"type": "float",
+					"desc": "How frequent to update"
+				}
+			},
+			"result": {
+				"type": "bool",
+				"desc": "Weather it succeeded or not"
+			}
+		},
+		"create_network": {
+			"desc": "When requested, this will create a new empty network and respond with the new networks GUID",
+			"params": {},
+			"result": {
+				"type": "Network",
+				"desc": "The new network GUID"
+			}
+		},
+		"create_device": {
+			"desc": "When requested, this will create a new device with default fields and respond with the new devices GUID  \nDevice type naming see [Mandates](#Mandates)",
+			"params": {
+				"device_type": {
+					"type": "string",
+					"desc": "The type of device to create"
+				},
+				"network": {
+					"type": "Network",
+					"desc": "The GUID of the target network the new device will be in"
+				}
+			},
+			"result": {
+				"type": "Device",
+				"desc": "The new device GUID"
+			}
+		},
+		"set_network_value": {
+			"desc": "When requested, this will set the given field value in the network.  \nIf `source` is not omitted then `source` is the device guid that the change originated, it MAY be used.",
+			"params": {
+				"network": {
+					"type": "Network",
+					"desc": "The GUID of the target network"
+				},
+				"field_name": {
+					"type": "string",
+					"desc": "The field name to change the value of"
+				},
+				"field_value": {
+					"type": "YololValue",
+					"desc": "The new value for the field"
+				},
+				"source": {
+					"type": "string",
+					"desc": "The source device GUID of the change (can be omitted)",
+					"optional": true
+				}
+			},
+			"result": {
+				"type": "bool",
+				"desc": "Weather it succeeded or not"
+			}
+		},
+		"set_device_field_name": {
+			"desc": "When requested, this should set the field name on the device.  \nTODO: mandate what to do when the new name exists or does not exist in the network",
+			"params": {
+				"device": {
+					"type": "Device",
+					"desc": "GUID of the device"
+				},
+				"field_id": {
+					"type": "string",
+					"desc": "The field ID to change the name of"
+				},
+				"field_name": {
+					"type": "string",
+					"desc": "The name to change to"
+				}
+			},
+			"result": {
+				"type": "bool",
+				"desc": "Weather it succeeded or not"
+			}
+		}
+	},
+	
+	"events": {
+		"device_created": {
+			"desc": "Event is fired when a new device is created",
+			"data": {
+				"device": {
+					"type": "Device",
+					"desc": "The GUID of the device of the new device"
+				},
+				"network": {
+					"type": "Network",
+					"desc": "The GUID of the network the new device is in"
+				},
+				"device_type": {
+					"type": "string",
+					"desc": "The type of device"
+				}
+			}
+		},
+		"device_field_name_changed": {
+			"desc": "Event is fired when a devices field name has been changed",
+			"data": {
+				"device": {
+					"type": "Device",
+					"desc": "The GUID of the device where the change originated"
+				},
+				"field_id": {
+					"type": "string",
+					"desc": "The changed field ID"
+				},
+				"field_name": {
+					"type": "string",
+					"desc": "The new field name"
+				}
+			}
+		},
+		"network_created": {
+			"desc": "Event is fired when a new network is created",
+			"data": {
+				"network": {
+					"type": "Network",
+					"desc": "The GUID of the network that was created"
+				}
+			}
+		},
+		"network_value_changed": {
+			"desc": "Event is fired when a network's field value has changed",
+			"data": {
+				"network": {
+					"type": "Network",
+					"desc": "The GUID of the network where the change originated"
+				},
+				"field_name": {
+					"type": "string",
+					"desc": "The name of the field that changed"
+				},
+				"field_value": {
+					"type": "YololValue",
+					"desc": "The new value of the field"
+				}
+			}
+		},
+		"simulation_speed_changed": {
+			"desc": "Event is fired the backends simulation speed has been changed",
+			"data": {
+				"simulation_speed": {
+					"type": "float",
+					"desc": "The new simulation speed"
+				}
+			}
+		}
+	},
+
+	"extensions_desc": "Extensions are standard optional features sets, it is recommended to implement all of these if possible.",
+	"extensions": {
+		"chip_debugging": {
+			"desc": "Chip debugging mode, used for controlling execution of a chip and gaining extra info on it's state  \nWhen a chip is in debugging mode it should ignore the global sim speed",
+			"requests": {
+				"debug": {
+					"desc": "Gets or sets weather the chip is in debugging mode or not.  \nIf `enabled` not omitted, set debugging mode to value of `enabled`",
+					"params": {
+						"chip": {
+							"type": "string",
+							"desc": "The GUID of the chip that is being ticked"
+						},
+						"enabled": {
+							"type": "bool",
+							"desc": "Weather the debuggin mode should be enabled or disabled",
+							"optional": true
+						}
+					},
+					"result": {
+						"type": "bool",
+						"desc": "Returns if this chip is in debugging mode (if changed, return new mode)"
+					}
+				},
+				"tick_line": {
+					"desc": "Run `count` lines of the chip",
+					"params": {
+						"chip": {
+							"type": "string",
+							"desc": "The GUID of the chip that is being ticked"
+						},
+						"count": {
+							"type": "int",
+							"desc": "Run this many lines"
+						}
+					},
+					"result": {
+						"type": "bool",
+						"desc": "Always true"
+					}
+				},
+				"tick_stmt": {
+					"optional": true,
+					"desc": "Run `count` statements of the chip  \nMAY implement if able to be supported",
+					"params": {
+						"chip": {
+							"type": "string",
+							"desc": "The GUID of the chip that is being ticked"
+						},
+						"count": {
+							"type": "int",
+							"desc": "Run this many statements"
+						}
+					},
+					"result": {
+						"type": "int",
+						"desc": "The position of the cursor after running statements  \n`-1` to indicate that it reached the end and has moved to the next line"
+					}
+				},
+				"tick_until": {
+					"optional": true,
+					"desc": "Run until condition is true  \nMAY implement if able to be supported",
+					"params": {
+						"chip": {
+							"type": "string",
+							"desc": "The GUID of the chip that is being ticked"
+						},
+						"until": {
+							"type": "string",
+							"desc": "Run until `done != 0`  \nMUST contain same language as execution (normally YOLOL)"
+						}
+					},
+					"result": {
+						"type": "int",
+						"desc": "The line where the condition was met  \n"
+					}
+				}
+			},
+			"events": {}
+		}
+	}
+}

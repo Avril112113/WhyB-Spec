@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GenerateSpec": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../../spec.json ../../../../"
+    }
+  }
+}
