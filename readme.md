@@ -14,5 +14,4 @@ Another benefit of this spec is that multiple users can work on the same backend
 See [spec.md](spec.md) for the full specification  
 
 # TODO List
-- [ ] Support yolol chips and code
-- [ ] Decide if the backend must support multiple connections or should just be advised
+- [ ] Support chip code modification
